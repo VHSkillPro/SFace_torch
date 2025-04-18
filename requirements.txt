@@ -1,0 +1,7 @@
+tensorboard
+easydict
+mxnet
+torch
+onnx
+scikit-learn
+opencv-python-headless
