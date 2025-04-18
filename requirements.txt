@@ -1,4 +1,5 @@
 tensorboard
+tensorboardX
 easydict
 mxnet
 torch
