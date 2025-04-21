@@ -2,6 +2,7 @@ import numpy as np
 
 np.bool = np.bool_
 
+from onnx2torch import convert
 import os, argparse, sklearn
 import torch
 import torch.nn as nn
@@ -210,12 +211,15 @@ if __name__ == "__main__":
     highest_acc = [0.0 for t in TARGET]
 
     # ======= model & loss & optimizer =======#
-    BACKBONE_DICT = {
-        "IR_50": IR_50(INPUT_SIZE),
-        "IR_101": IR_101(INPUT_SIZE),
-        "MobileFaceNet": MobileFaceNet(EMBEDDING_SIZE),
-    }
-    BACKBONE = BACKBONE_DICT[BACKBONE_NAME]
+    # BACKBONE_DICT = {
+    #     "IR_50": IR_50(INPUT_SIZE),
+    #     "IR_101": IR_101(INPUT_SIZE),
+    #     "MobileFaceNet": MobileFaceNet(EMBEDDING_SIZE),
+    # }
+    # BACKBONE = BACKBONE_DICT[BACKBONE_NAME]
+    BACKBONE_NAME = "MobileFaceNet"
+    onnx_model_path = "weights/face_recognition_sface_2021dec.onnx"
+    BACKBONE = convert(onnx_model_path)
     print("=" * 60)
     print(BACKBONE)
     print("{} Backbone Generated".format(BACKBONE_NAME))
@@ -239,9 +243,9 @@ if __name__ == "__main__":
         )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
         _, head_paras_wo_bn = separate_irse_bn_paras(HEAD)
     elif BACKBONE_NAME.find("MobileFace") >= 0:
-        backbone_paras_only_bn, backbone_paras_wo_bn = separate_mobilefacenet_bn_paras(
-            BACKBONE
-        )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
+        # backbone_paras_only_bn, backbone_paras_wo_bn = separate_mobilefacenet_bn_paras(
+        #     BACKBONE
+        # )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
         _, head_paras_wo_bn = separate_mobilefacenet_bn_paras(HEAD)
     else:
         backbone_paras_only_bn, backbone_paras_wo_bn = separate_resnet_bn_paras(
@@ -251,10 +255,9 @@ if __name__ == "__main__":
     OPTIMIZER = optim.SGD(
         [
             {
-                "params": backbone_paras_wo_bn + head_paras_wo_bn,
+                "params": head_paras_wo_bn,
                 "weight_decay": WEIGHT_DECAY,
             },
-            {"params": backbone_paras_only_bn},
         ],
         lr=LR,
         momentum=MOMENTUM,
@@ -264,23 +267,23 @@ if __name__ == "__main__":
     print("Optimizer Generated")
     print("=" * 60)
 
-    BACKBONE.apply(weight_init)
+    # BACKBONE.apply(weight_init)
     HEAD.apply(weight_init)
 
     # optionally resume from a checkpoint
-    if BACKBONE_RESUME_ROOT:
-        print("=" * 60)
-        print(BACKBONE_RESUME_ROOT)
-        if os.path.isfile(BACKBONE_RESUME_ROOT):
-            print("Loading Backbone Checkpoint '{}'".format(BACKBONE_RESUME_ROOT))
-            BACKBONE.load_state_dict(torch.load(BACKBONE_RESUME_ROOT))
-        else:
-            print(
-                "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
-                    BACKBONE_RESUME_ROOT
-                )
-            )
-        print("=" * 60)
+    # if BACKBONE_RESUME_ROOT:
+    #     print("=" * 60)
+    #     print(BACKBONE_RESUME_ROOT)
+    #     if os.path.isfile(BACKBONE_RESUME_ROOT):
+    #         print("Loading Backbone Checkpoint '{}'".format(BACKBONE_RESUME_ROOT))
+    #         BACKBONE.load_state_dict(torch.load(BACKBONE_RESUME_ROOT))
+    #     else:
+    #         print(
+    #             "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
+    #                 BACKBONE_RESUME_ROOT
+    #             )
+    #         )
+    #     print("=" * 60)
 
     if MULTI_GPU:
         # multi-GPU setting
