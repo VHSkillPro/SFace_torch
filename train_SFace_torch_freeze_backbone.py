@@ -455,3 +455,45 @@ if __name__ == "__main__":
                 # BACKBONE.train()  # set to training mode
 
             batch += 1  # batch index
+
+    # save the last checkpoint
+    if MULTI_GPU:
+        # torch.save(
+        #     BACKBONE.module.state_dict(),
+        #     os.path.join(
+        #         WORK_PATH,
+        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
+        #         ),
+        #     ),
+        # )
+        torch.save(
+            HEAD.state_dict(),
+            os.path.join(
+                WORK_PATH,
+                "Head_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+                    HEAD_NAME, epoch + 1, batch + 1, get_time()
+                ),
+            ),
+        )
+    else:
+        # torch.save(
+        #     BACKBONE.state_dict(),
+        #     os.path.join(
+        #         WORK_PATH,
+        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
+        #         ),
+        #     ),
+        # )
+        torch.save(
+            HEAD.state_dict(),
+            os.path.join(
+                WORK_PATH,
+                "Head_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+                    HEAD_NAME, epoch + 1, batch + 1, get_time()
+                ),
+            ),
+        )
+
+    dataset.close()

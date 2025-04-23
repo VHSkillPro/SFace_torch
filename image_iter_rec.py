@@ -78,20 +78,37 @@ class FaceDataset(data.Dataset):
 
         return img, label
 
+    def close(self):
+        """Đóng file RecordIO một cách tường minh."""
+        logging.info("Closing RecordIO file...")
+        if hasattr(self, "imgrec") and self.imgrec:
+            try:
+                self.imgrec.close()
+                self.imgrec = None  # Đặt lại thành None để tránh gọi close nhiều lần
+                logging.info("RecordIO file closed successfully.")
+            except Exception as e:
+                logging.error("Error closing RecordIO file: %s", e)
+        else:
+            logging.warning(
+                "Attempted to close an already closed or non-existent RecordIO."
+            )
+
     def __len__(self):
         return len(self.seq)
 
 
 if __name__ == "__main__":
-    root = "../../Data/faces_webface_112x112/train.rec"
+    root = "datasets/my-dataset/train.rec"
 
     dataset = FaceDataset(path_imgrec=root, rand_mirror=False)
     trainloader = data.DataLoader(
         dataset, batch_size=32, shuffle=True, num_workers=2, drop_last=False
     )
-    embed()
+    # embed()
     print(len(dataset))
     for data, label in trainloader:
         # print(data.shape, label.shape)
         data_nd = io.DataBatch([data], [label])
         print(data_nd.data, data_nd.label)
+
+    dataset.close()
