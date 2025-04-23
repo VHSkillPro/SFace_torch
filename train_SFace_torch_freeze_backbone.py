@@ -415,15 +415,15 @@ if __name__ == "__main__":
                 # save checkpoints per epoch
                 if need_save(acc, highest_acc):
                     if MULTI_GPU:
-                        torch.save(
-                            BACKBONE.module.state_dict(),
-                            os.path.join(
-                                WORK_PATH,
-                                "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
-                                    BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-                                ),
-                            ),
-                        )
+                        # torch.save(
+                        #     BACKBONE.module.state_dict(),
+                        #     os.path.join(
+                        #         WORK_PATH,
+                        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+                        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
+                        #         ),
+                        #     ),
+                        # )
                         torch.save(
                             HEAD.state_dict(),
                             os.path.join(
@@ -434,15 +434,15 @@ if __name__ == "__main__":
                             ),
                         )
                     else:
-                        torch.save(
-                            BACKBONE.state_dict(),
-                            os.path.join(
-                                WORK_PATH,
-                                "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
-                                    BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-                                ),
-                            ),
-                        )
+                        # torch.save(
+                        #     BACKBONE.state_dict(),
+                        #     os.path.join(
+                        #         WORK_PATH,
+                        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
+                        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
+                        #         ),
+                        #     ),
+                        # )
                         torch.save(
                             HEAD.state_dict(),
                             os.path.join(

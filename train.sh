@@ -20,6 +20,6 @@ CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_freeze_backbone.py \
     --eval_path datasets/eval \
     --resume_backbone weights/face_recognition_sface_2021dec.pth \
     --target lfw,cplfw,cfp_fp,cfp_ff,calfw,agedb_30 \
-    --outdir ./results/mobilefacenet-frezze_sface_casia-downscale \
+    --outdir ./results/mobilefacenet_frezze-sface-casia_downscale \
     --param_a 0.87 \
-    --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-frezze_sface_casia-downscale.log
+    --param_b 1.2 2>&1 | tee ./logs/mobilefacenet_frezze-sface-casia_downscale.log
