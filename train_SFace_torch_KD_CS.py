@@ -316,6 +316,13 @@ if __name__ == "__main__":
             "Teacher backbone model not found at {}".format(teacher_backbone_path)
         )
     teacher_backbone = convert(teacher_backbone_path)
+    if MULTI_GPU:
+        # multi-GPU setting
+        teacher_backbone = nn.DataParallel(teacher_backbone, device_ids=GPU_ID)
+        teacher_backbone.to(DEVICE)
+    else:
+        # single-GPU setting
+        teacher_backbone.to(DEVICE)
     teacher_backbone.eval()
 
     HIDDEN_REP_LOSS_WEIGHT = 0.1  # Weight for the hidden representation loss
