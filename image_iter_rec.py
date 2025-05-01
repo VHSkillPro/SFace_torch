@@ -98,7 +98,7 @@ class FaceDataset(data.Dataset):
 
 
 if __name__ == "__main__":
-    root = "datasets/my-dataset/train.rec"
+    root = "datasets/my_dataset/train.rec"
 
     dataset = FaceDataset(path_imgrec=root, rand_mirror=False)
     trainloader = data.DataLoader(
@@ -107,8 +107,8 @@ if __name__ == "__main__":
     # embed()
     print(len(dataset))
     for data, label in trainloader:
-        # print(data.shape, label.shape)
-        data_nd = io.DataBatch([data], [label])
-        print(data_nd.data, data_nd.label)
+        print(data.shape, label.shape)
+        # data_nd = io.DataBatch([data], [label])
+        # print(data_nd.data, data_nd.label)
 
     dataset.close()
