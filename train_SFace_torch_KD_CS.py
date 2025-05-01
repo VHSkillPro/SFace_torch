@@ -325,7 +325,7 @@ if __name__ == "__main__":
         teacher_backbone.to(DEVICE)
     teacher_backbone.eval()
 
-    HIDDEN_REP_LOSS_WEIGHT = 0.1  # Weight for the hidden representation loss
+    HIDDEN_REP_LOSS_WEIGHT = 0.25  # Weight for the hidden representation loss
     SFACE_LOSS_WEIGHT = 1 - HIDDEN_REP_LOSS_WEIGHT
 
     for epoch in range(NUM_EPOCH):
@@ -340,11 +340,12 @@ if __name__ == "__main__":
             labels = labels.to(DEVICE).long()
             features = BACKBONE(inputs)
 
-            teacher_features = teacher_backbone(inputs)
+            with torch.no_grad():
+                teacher_features = teacher_backbone(inputs)
+
             hidden_rep_loss = torch.cosine_embedding_loss(
                 features, teacher_features, torch.ones(features.size(0)).to(DEVICE)
             )
-
             outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
@@ -353,7 +354,9 @@ if __name__ == "__main__":
             Wyi_mean.update(WyiX.data.item(), inputs.size(0))
             Wj_mean.update(WjX.data.item(), inputs.size(0))
             top1.update(prec1.data.item(), inputs.size(0))
-            cosine_embedding_losses.update(hidden_rep_loss.mean().data.item(), inputs.size(0))
+            cosine_embedding_losses.update(
+                hidden_rep_loss.mean().data.item(), inputs.size(0)
+            )
 
             total_loss = (
                 HIDDEN_REP_LOSS_WEIGHT * hidden_rep_loss + SFACE_LOSS_WEIGHT * loss
