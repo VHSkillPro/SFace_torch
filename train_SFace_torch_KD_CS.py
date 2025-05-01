@@ -346,6 +346,7 @@ if __name__ == "__main__":
             hidden_rep_loss = torch.cosine_embedding_loss(
                 features, teacher_features, torch.ones(features.size(0)).to(DEVICE)
             )
+            hidden_rep_loss = hidden_rep_loss.mean()
             outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
@@ -354,9 +355,7 @@ if __name__ == "__main__":
             Wyi_mean.update(WyiX.data.item(), inputs.size(0))
             Wj_mean.update(WjX.data.item(), inputs.size(0))
             top1.update(prec1.data.item(), inputs.size(0))
-            cosine_embedding_losses.update(
-                hidden_rep_loss.mean().data.item(), inputs.size(0)
-            )
+            cosine_embedding_losses.update(hidden_rep_loss.data.item(), inputs.size(0))
 
             total_loss = (
                 HIDDEN_REP_LOSS_WEIGHT * hidden_rep_loss + SFACE_LOSS_WEIGHT * loss
