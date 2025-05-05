@@ -52,3 +52,17 @@ CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_CS.py \
     --param_a 0.87 \
     --teacher_backbone weights/face_recognition_sface_2021dec.onnx \
     --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_CS-casia_downscale.log
+
+CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_MSE.py \
+    --workers_id 0 \
+    --batch_size 256 \
+    --epochs 50 \
+    --lr 0.1 \
+    --stages 20,30,40 \
+    --data_root datasets/train/downscale-casia_webface-2-converted \
+    --eval_path datasets/eval \
+    --target lfw,cplfw,cfp_fp \
+    --outdir ./results/mobilefacenet-sface_KD_MSE-casia_downscale \
+    --param_a 0.87 \
+    --teacher_backbone weights/face_recognition_sface_2021dec_extend.onnx \
+    --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_MSE-casia_downscale.log
