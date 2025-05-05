@@ -343,6 +343,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 _, teacher_feature_map = teacher_backbone(inputs)
 
+            print(regressor_feature_map.shape, teacher_feature_map.shape)
             hidden_rep_loss = mse_loss(regressor_feature_map, teacher_feature_map)
             hidden_rep_loss = hidden_rep_loss.mean()
             outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)

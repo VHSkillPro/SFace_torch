@@ -218,11 +218,11 @@ class ModifiedMobileFaceNet(Module):
         self.conv_6sep = Conv_block(
             128, 512, kernel=(1, 1), stride=(1, 1), padding=(0, 0)
         )
+        self.regressor = Sequential(
+            Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1), padding=(0, 0))
+        )
         self.conv_6dw7_7 = Linear_block(
             512, 512, groups=512, kernel=(7, 7), stride=(1, 1), padding=(0, 0)
-        )
-        self.regressor = Sequential(
-            Conv2d(512, 1024, kernel_size=(7, 7), stride=(1, 1), padding=(0, 0))
         )
         self.conv_6_flatten = Flatten()
         self.pre_fc1 = Linear(512, embedding_size)
