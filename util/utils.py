@@ -193,6 +193,68 @@ def perform_val(
     )
 
 
+def modified_perform_val(
+    multi_gpu,
+    device,
+    embedding_size,
+    batch_size,
+    backbone,
+    data_set,
+    issame,
+    nrof_folds=10,
+):
+    if multi_gpu:
+        backbone = backbone.module  # unpackage model from DataParallel
+        backbone = backbone.to(device)
+    else:
+        backbone = backbone.to(device)
+    backbone.eval()  # switch to evaluation mode
+
+    embeddings_list = []
+    for carray in data_set:
+        idx = 0
+        embeddings = np.zeros([len(carray), embedding_size])
+        with torch.no_grad():
+            while idx + batch_size <= len(carray):
+                batch = carray[idx : idx + batch_size]
+                # last_time = time.time()
+                embeddings[idx : idx + batch_size] = backbone(batch.to(device))[0].cpu()
+                # batch_time = time.time() - last_time
+                # print("batch_time", batch_size, batch_time)
+                idx += batch_size
+            if idx < len(carray):
+                batch = carray[idx:]
+                embeddings[idx:] = backbone(batch.to(device))[0].cpu()
+        embeddings_list.append(embeddings)
+
+    _xnorm = 0.0
+    _xnorm_cnt = 0
+    for embed in embeddings_list:
+        for i in range(embed.shape[0]):
+            _em = embed[i]
+            _norm = np.linalg.norm(_em)
+            _xnorm += _norm
+            _xnorm_cnt += 1
+    _xnorm /= _xnorm_cnt
+
+    embeddings = embeddings_list[0] + embeddings_list[1]
+    embeddings = sklearn.preprocessing.normalize(embeddings)
+    print(embeddings.shape)
+
+    tpr, fpr, accuracy, best_thresholds = evaluate(embeddings, issame, nrof_folds)
+    buf = gen_plot(fpr, tpr)
+    roc_curve = Image.open(buf)
+    roc_curve_tensor = transforms.ToTensor()(roc_curve)
+
+    return (
+        accuracy.mean(),
+        accuracy.std(),
+        _xnorm,
+        best_thresholds.mean(),
+        roc_curve_tensor,
+    )
+
+
 def buffer_val(
     writer, db_name, acc, std, xnorm, best_threshold, roc_curve_tensor, batch
 ):

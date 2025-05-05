@@ -16,6 +16,7 @@ from backbone.model_mobilefacenet import MobileFaceNet, ModifiedMobileFaceNet
 from head.metrics import SFaceLoss
 
 from util.utils import (
+    modified_perform_val,
     separate_irse_bn_paras,
     separate_resnet_bn_paras,
     separate_mobilefacenet_bn_paras,
@@ -411,14 +412,16 @@ if __name__ == "__main__":
                 acc = []
                 for ver in vers:
                     name, data_set, issame = ver
-                    accuracy, std, xnorm, best_threshold, roc_curve = perform_val(
-                        MULTI_GPU,
-                        DEVICE,
-                        EMBEDDING_SIZE,
-                        BATCH_SIZE,
-                        BACKBONE,
-                        data_set,
-                        issame,
+                    accuracy, std, xnorm, best_threshold, roc_curve = (
+                        modified_perform_val(
+                            MULTI_GPU,
+                            DEVICE,
+                            EMBEDDING_SIZE,
+                            BATCH_SIZE,
+                            BACKBONE,
+                            data_set,
+                            issame,
+                        )
                     )
                     buffer_val(
                         writer,
