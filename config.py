@@ -1,6 +1,5 @@
 import torch, os
 import yaml
-from IPython import embed
 
 
 def get_yaml_data(yaml_file):
@@ -62,7 +61,7 @@ def get_config(args):
     # Configure target validation dataset
     configuration["TARGET"] = [i for i in args.target.split(",")]
 
-    if args.resume_backbone:
+    if args.resume_backbone and args.resume_head:
         configuration["BACKBONE_RESUME_ROOT"] = (
             args.resume_backbone
         )  # the dir to resume training from a saved checkpoint

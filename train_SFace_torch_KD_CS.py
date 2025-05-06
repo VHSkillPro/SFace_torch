@@ -239,21 +239,18 @@ if __name__ == "__main__":
         backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
             BACKBONE
         )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_irse_bn_paras(HEAD)
     elif BACKBONE_NAME.find("MobileFace") >= 0:
         backbone_paras_only_bn, backbone_paras_wo_bn = separate_mobilefacenet_bn_paras(
             BACKBONE
         )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_mobilefacenet_bn_paras(HEAD)
     else:
         backbone_paras_only_bn, backbone_paras_wo_bn = separate_resnet_bn_paras(
             BACKBONE
         )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_resnet_bn_paras(HEAD)
     OPTIMIZER = optim.SGD(
         [
             {
-                "params": backbone_paras_wo_bn + head_paras_wo_bn,
+                "params": backbone_paras_wo_bn,
                 "weight_decay": WEIGHT_DECAY,
             },
             {"params": backbone_paras_only_bn},
@@ -270,18 +267,16 @@ if __name__ == "__main__":
     HEAD.apply(weight_init)
 
     # optionally resume from a checkpoint
-    if BACKBONE_RESUME_ROOT and HEAD_RESUME_ROOT:
+    if HEAD_RESUME_ROOT:
         print("=" * 60)
-        print(BACKBONE_RESUME_ROOT, HEAD_RESUME_ROOT)
-        if os.path.isfile(BACKBONE_RESUME_ROOT) and os.path.isfile(HEAD_RESUME_ROOT):
-            print("Loading Backbone Checkpoint '{}'".format(BACKBONE_RESUME_ROOT))
-            BACKBONE.load_state_dict(torch.load(BACKBONE_RESUME_ROOT))
+        print(HEAD_RESUME_ROOT)
+        if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
             HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT))
         else:
             print(
-                "No Checkpoint Found at '{}' and '{}'. Please Have a Check or Continue to Train from Scratch".format(
-                    BACKBONE_RESUME_ROOT, HEAD_RESUME_ROOT
+                "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
+                    HEAD_RESUME_ROOT
                 )
             )
         print("=" * 60)
@@ -307,7 +302,7 @@ if __name__ == "__main__":
     cosine_embedding_losses = AverageMeter()
 
     BACKBONE.train()  # set to training mode
-    HEAD.train()
+    HEAD.eval()
 
     # Load the teacher model
     teacher_backbone_path = args.teacher_backbone

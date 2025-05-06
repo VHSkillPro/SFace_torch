@@ -51,6 +51,8 @@ CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_CS.py \
     --outdir ./results/mobilefacenet-sface_KD_CS-casia_downscale \
     --param_a 0.87 \
     --teacher_backbone weights/face_recognition_sface_2021dec.onnx \
+    --resume_head weights/Head_SFaceLoss.pth \
+    --resume_backbone weights/ \
     --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_CS-casia_downscale.log
 
 CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_MSE.py \
