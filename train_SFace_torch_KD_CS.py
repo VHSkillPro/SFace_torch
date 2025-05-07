@@ -140,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument("--param_k", default=80.0, type=float)
     parser.add_argument("--param_a", default=0.8, type=float)
     parser.add_argument("--param_b", default=1.23, type=float)
+    parser.add_argument("--hidden_rep_loss_weight", default=0.25, type=float)
     args = parser.parse_args()
 
     # ======= hyperparameters & data loaders =======#
@@ -320,7 +321,7 @@ if __name__ == "__main__":
         teacher_backbone.to(DEVICE)
     teacher_backbone.eval()
 
-    HIDDEN_REP_LOSS_WEIGHT = 0.25  # Weight for the hidden representation loss
+    HIDDEN_REP_LOSS_WEIGHT = args.hidden_rep_loss_weight
     SFACE_LOSS_WEIGHT = 1 - HIDDEN_REP_LOSS_WEIGHT
 
     for epoch in range(NUM_EPOCH):
