@@ -101,7 +101,7 @@ if __name__ == "__main__":
     print("=========================== Optimizer ===========================")
     print("Optimizer: ", optimizer)
     print("============================ ArcFace ============================")
-    arcface.print_readable()
+    print("ArcFace: ", arcface)
     print("=================================================================")
     # ---------------------------- End - Load Model and Loss Function ----------------------------
 
