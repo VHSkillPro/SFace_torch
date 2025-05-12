@@ -82,3 +82,6 @@ CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_MSE+CS.py \
     --param_a 0.87 \
     --teacher_backbone weights/face_recognition_sface_2021dec_extend.onnx \
     --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_MSE+CS-casia_downscale.log
+
+CUDA_VISIBLE_DEVICES='0' python3 -u train_ae_arcface.py \
+    --data_dir datasets/train/downscale-casia_webface-2-converted 2>&1 | tee ./logs/autoencoder_arcface.log

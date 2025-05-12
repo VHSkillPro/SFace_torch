@@ -7,3 +7,5 @@ onnx
 scikit-learn
 opencv-python-headless
 onnx2torch
+onnxruntime-gpu
+git+https://github.com/deepinsight/insightface.git#subdirectory=python-package
