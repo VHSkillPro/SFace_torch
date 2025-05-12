@@ -147,13 +147,13 @@ if __name__ == "__main__":
                     last_time = time.time()
 
                     print(
-                        "Epoch {} Batch {}\t"
+                        "Epoch {} \t Batch {}\t"
                         "Speed: {speed:.2f} samples/s\t"
-                        "CosineEmbeddingLoss: {loss:.4f}\t".format(
+                        "CosineEmbeddingLoss: {loss.val:.4f} ({loss.avg:.4f})".format(
                             epoch + 1,
                             batch + 1,
                             speed=inputs.size(0) * DISP_FREQ / float(batch_time),
-                            loss=cosine_embedding_loss_epoch,
+                            loss=cosine_embedding_losses,
                         )
                     )
 
