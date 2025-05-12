@@ -1,5 +1,4 @@
 import numpy as np
-import onnx2torch
 
 np.bool = np.bool_
 
@@ -7,6 +6,7 @@ import os
 import time
 import torch
 import argparse
+import onnx2torch
 from torch import nn, optim
 from util.utils import AverageMeter
 from image_iter_rec import FaceDataset
@@ -15,6 +15,12 @@ from backbone.model_ae import AutoEncoder
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Training AutoEncoder for ArcFace Model"
+    )
+    parser.add_argument(
+        "--workers_id",
+        type=str,
+        default="0",
+        help="GPU ID to use for training, e.g., '0,1' for multiple GPUs",
     )
     parser.add_argument("--lr", help="learning rate", default=0.1, type=float)
     parser.add_argument(
