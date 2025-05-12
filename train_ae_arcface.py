@@ -107,7 +107,6 @@ if __name__ == "__main__":
 
     # ---------------------------- Begin - Training Loop ----------------------------
     DISP_FREQ = 20
-    VER_FREQ = 2000
     batch = 0
 
     try:
@@ -120,7 +119,9 @@ if __name__ == "__main__":
 
             for inputs, labels in iter(trainloader):
                 inputs = inputs.to(DEVICE)
-                features = arcface.forward(inputs.float())
+                with torch.no_grad():
+                    features = arcface.forward(inputs.float())
+
                 model_outputs = model.forward(features)
 
                 # Compute the loss
@@ -156,8 +157,7 @@ if __name__ == "__main__":
                         )
                     )
 
-            print("Batch: ", batch)
-            batch += 1
+                batch += 1
     except Exception as e:
         raise e
     finally:
