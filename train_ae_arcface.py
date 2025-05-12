@@ -37,7 +37,26 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    configuration = dict()
+    if args.workers_id == "cpu" or not torch.cuda.is_available():
+        configuration["GPU_ID"] = []
+        print("check", args.workers_id, torch.cuda.is_available())
+    else:
+        configuration["GPU_ID"] = [int(i) for i in args.workers_id.split(",")]
+    if len(configuration["GPU_ID"]) == 0:
+        configuration["DEVICE"] = torch.device("cpu")
+        configuration["MULTI_GPU"] = False
+    else:
+        configuration["DEVICE"] = torch.device("cuda:%d" % configuration["GPU_ID"][0])
+        if len(configuration["GPU_ID"]) == 1:
+            configuration["MULTI_GPU"] = False
+        else:
+            configuration["MULTI_GPU"] = True
+
+    DEVICE = configuration["DEVICE"]
+    MULTI_GPU = configuration["MULTI_GPU"]  # flag to use multiple GPUs
+    GPU_ID = configuration["GPU_ID"]
+    print("GPU_ID", GPU_ID)
 
     # ---------------------------- Begin - Load Data ----------------------------
 
@@ -60,8 +79,14 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     arcface = onnx2torch.convert("weights/w600k_r50.onnx")
 
-    model.to(DEVICE)
-    arcface.to(DEVICE)
+    if MULTI_GPU:
+        model = nn.DataParallel(model, device_ids=GPU_ID)
+        arcface = nn.DataParallel(arcface, device_ids=GPU_ID)
+        arcface.to(DEVICE)
+        model.to(DEVICE)
+    else:
+        arcface.to(DEVICE)
+        model.to(DEVICE)
 
     print("========================== AutoEncoder ==========================")
     print("Model: ", model)
@@ -130,9 +155,15 @@ if __name__ == "__main__":
         raise e
     finally:
         # Save the model
-        torch.save(
-            model.state_dict(),
-            os.path.join(args.data_dir, "model_ae_epoch_{}.pth".format(epoch + 1)),
-        )
+        if MULTI_GPU:
+            torch.save(
+                model.module.state_dict(),
+                os.path.join(args.data_dir, "model_ae_epoch_{}.pth".format(epoch + 1)),
+            )
+        else:
+            torch.save(
+                model.state_dict(),
+                os.path.join(args.data_dir, "model_ae_epoch_{}.pth".format(epoch + 1)),
+            )
 
         dataset.close()
