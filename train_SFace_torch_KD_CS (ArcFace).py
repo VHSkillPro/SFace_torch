@@ -348,7 +348,7 @@ if __name__ == "__main__":
 
             with torch.no_grad():
                 teacher_features = teacher_backbone(inputs.float())
-                teacher_features = ae_model(teacher_features)
+                teacher_features = ae_model.encode(teacher_features)
 
             hidden_rep_loss = torch.cosine_embedding_loss(
                 features, teacher_features, torch.ones(features.size(0)).to(DEVICE)
