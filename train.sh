@@ -84,4 +84,21 @@ CUDA_VISIBLE_DEVICES='0' python3 -u train_SFace_torch_KD_MSE+CS.py \
     --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_MSE+CS-casia_downscale.log
 
 CUDA_VISIBLE_DEVICES='0' python3 -u train_ae_arcface.py \
+    --workers_id 0 \
     --data_dir datasets/train/downscale-casia_webface-2-converted 2>&1 | tee ./logs/autoencoder_arcface.log
+
+CUDA_VISIBLE_DEVICES='0' python3 -u "train_SFace_torch_KD_CS (ArcFace).py" \
+    --workers_id 0 \
+    --batch_size 256 \
+    --epochs 50 \
+    --lr 0.1 \
+    --stages 20,30,40 \
+    --data_root datasets/train/downscale-casia_webface-2-converted \
+    --eval_path datasets/eval \
+    --target lfw,cplfw,cfp_fp \
+    --outdir ./results/mobilefacenet-sface_KD_CS_ArcFace-casia_downscale \
+    --param_a 0.87 \
+    --teacher_backbone weights/w600k_r50.onnx \
+    --resume_head weights/Head_SFaceLoss.pth \
+    --resume_backbone weights/ \
+    --param_b 1.2 2>&1 | tee ./logs/mobilefacenet-sface_KD_CS_ArcFace-casia_downscale.log    
