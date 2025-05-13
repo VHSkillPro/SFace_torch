@@ -1,6 +1,6 @@
 import numpy as np
 
-from backbone.model_ae import AutoEncoder
+from backbone.model_ae import AutoEncoder, AutoEncoderEncode
 
 np.bool = np.bool_
 
@@ -315,7 +315,7 @@ if __name__ == "__main__":
             "Teacher backbone model not found at {}".format(teacher_backbone_path)
         )
     teacher_backbone = convert(teacher_backbone_path)
-    ae_model = AutoEncoder()
+    ae_model = AutoEncoderEncode()
     ae_model.load_state_dict(
         torch.load("weights/model_ae_epoch_100.pth", weights_only=True)
     )
@@ -348,7 +348,7 @@ if __name__ == "__main__":
 
             with torch.no_grad():
                 teacher_features = teacher_backbone(inputs.float())
-                teacher_features = ae_model.encode(teacher_features)
+                teacher_features = ae_model(teacher_features)
 
             hidden_rep_loss = torch.cosine_embedding_loss(
                 features, teacher_features, torch.ones(features.size(0)).to(DEVICE)
