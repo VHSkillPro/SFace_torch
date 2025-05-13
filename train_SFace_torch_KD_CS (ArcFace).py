@@ -275,7 +275,7 @@ if __name__ == "__main__":
         print(HEAD_RESUME_ROOT)
         if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
-            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT))
+            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT, weights_only=True))
         else:
             print(
                 "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
@@ -316,7 +316,9 @@ if __name__ == "__main__":
         )
     teacher_backbone = convert(teacher_backbone_path)
     ae_model = AutoEncoder()
-    ae_model.load_state_dict(torch.load("weights/model_ae_epoch_100.pth"))
+    ae_model.load_state_dict(
+        torch.load("weights/model_ae_epoch_100.pth", weights_only=True)
+    )
     if MULTI_GPU:
         # multi-GPU setting
         teacher_backbone = nn.DataParallel(teacher_backbone, device_ids=GPU_ID)
