@@ -162,15 +162,16 @@ if __name__ == "__main__":
         raise e
     finally:
         # Save the model
+        os.makedirs("results", exist_ok=True)
         if MULTI_GPU:
             torch.save(
                 model.module.state_dict(),
-                os.path.join(args.data_dir, "model_ae_epoch_{}.pth".format(epoch + 1)),
+                os.path.join("results", "model_ae_epoch_{}.pth".format(epoch + 1)),
             )
         else:
             torch.save(
                 model.state_dict(),
-                os.path.join(args.data_dir, "model_ae_epoch_{}.pth".format(epoch + 1)),
+                os.path.join("results", "model_ae_epoch_{}.pth".format(epoch + 1)),
             )
 
         dataset.close()
