@@ -156,6 +156,7 @@ if __name__ == "__main__":
                             loss=cosine_embedding_losses,
                         )
                     )
+                    cosine_embedding_losses = AverageMeter()
 
                 batch += 1
     except Exception as e:
