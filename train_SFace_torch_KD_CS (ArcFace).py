@@ -330,6 +330,7 @@ if __name__ == "__main__":
         teacher_backbone.to(DEVICE)
         ae_model.to(DEVICE)
     teacher_backbone.eval()
+    ae_model.eval()
 
     HIDDEN_REP_LOSS_WEIGHT = args.hidden_rep_loss_weight
     SFACE_LOSS_WEIGHT = 1 - HIDDEN_REP_LOSS_WEIGHT
