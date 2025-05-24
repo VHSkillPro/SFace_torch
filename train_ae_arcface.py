@@ -106,9 +106,6 @@ if __name__ == "__main__":
     # ---------------------------- End - Load Model and Loss Function ----------------------------
 
     # ---------------------------- Begin - Training Loop ----------------------------
-    DISP_FREQ = 20
-    batch = 0
-
     try:
         cosine_embedding_losses = AverageMeter()
 
@@ -139,26 +136,17 @@ if __name__ == "__main__":
                 loss.backward()
                 optimizer.step()
 
-                # Print loss and speed
-                if ((batch + 1) % DISP_FREQ == 0) and batch != 0:
-                    cosine_embedding_loss_epoch = cosine_embedding_losses.avg
+            # Print loss and speed
+            print(
+                "Epoch {} \t"
+                "CosineEmbeddingLoss: {loss.avg:.4f}".format(
+                    epoch + 1,
+                    loss=cosine_embedding_losses,
+                )
+            )
+            last_time = time.time()
+            cosine_embedding_losses = AverageMeter()
 
-                    batch_time = time.time() - last_time
-                    last_time = time.time()
-
-                    print(
-                        "Epoch {} \t Batch {}\t"
-                        "Speed: {speed:.2f} samples/s\t"
-                        "CosineEmbeddingLoss: {loss.val:.4f} ({loss.avg:.4f})".format(
-                            epoch + 1,
-                            batch + 1,
-                            speed=inputs.size(0) * DISP_FREQ / float(batch_time),
-                            loss=cosine_embedding_losses,
-                        )
-                    )
-                    cosine_embedding_losses = AverageMeter()
-
-                batch += 1
     except Exception as e:
         raise e
     finally:
