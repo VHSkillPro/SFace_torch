@@ -399,7 +399,7 @@ if __name__ == "__main__":
                     "Wyi {Wyi.val:.4f} ({Wyi.avg:.4f})\t"
                     "Wj {Wj.val:.4f} ({Wj.avg:.4f})\t"
                     "Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t"
-                    "CosineEmbeddingLoss {celoss.val:.3f} ({celoss.avg:.3f})".format(
+                    "CosineEmbeddingLoss {celoss.val:.5f} ({celoss.avg:.5f})".format(
                         epoch + 1,
                         batch + 1,
                         speed=inputs.size(0) * DISP_FREQ / float(batch_time),
