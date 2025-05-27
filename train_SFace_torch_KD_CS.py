@@ -273,7 +273,10 @@ if __name__ == "__main__":
         print(HEAD_RESUME_ROOT)
         if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
-            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT))
+            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT, weights_only=True))
+            # Freeze the head
+            for param in HEAD.parameters():
+                param.requires_grad = False
         else:
             print(
                 "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
@@ -312,6 +315,11 @@ if __name__ == "__main__":
             "Teacher backbone model not found at {}".format(teacher_backbone_path)
         )
     teacher_backbone = convert(teacher_backbone_path)
+
+    # Freezed the teacher backbone
+    for param in teacher_backbone.parameters():
+        param.requires_grad = False
+
     if MULTI_GPU:
         # multi-GPU setting
         teacher_backbone = nn.DataParallel(teacher_backbone, device_ids=GPU_ID)
@@ -344,10 +352,7 @@ if __name__ == "__main__":
             )
             hidden_rep_loss = hidden_rep_loss.mean()
 
-            with torch.no_grad():
-                outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(
-                    features, labels
-                )
+            outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
             intra_losses.update(intra_loss.data.item(), inputs.size(0))
@@ -391,7 +396,7 @@ if __name__ == "__main__":
                     "Wyi {Wyi.val:.4f} ({Wyi.avg:.4f})\t"
                     "Wj {Wj.val:.4f} ({Wj.avg:.4f})\t"
                     "Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t"
-                    "CosineEmbeddingLoss {celoss.val:.3f} ({celoss.avg:.3f})".format(
+                    "CosineEmbeddingLoss {celoss.val:.4f} ({celoss.avg:.4f})".format(
                         epoch + 1,
                         batch + 1,
                         speed=inputs.size(0) * DISP_FREQ / float(batch_time),
