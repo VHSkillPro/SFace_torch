@@ -270,6 +270,10 @@ if __name__ == "__main__":
         if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
             HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT, weights_only=True))
+
+            # Freeze the head
+            for param in HEAD.parameters():
+                param.requires_grad = False
         else:
             print(
                 "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
@@ -311,10 +315,7 @@ if __name__ == "__main__":
             labels = labels.to(DEVICE).long()
             features = BACKBONE(inputs)
 
-            with torch.no_grad():
-                outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(
-                    features, labels
-                )
+            outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
             intra_losses.update(intra_loss.data.item(), inputs.size(0))
