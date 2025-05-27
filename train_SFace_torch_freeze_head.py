@@ -269,7 +269,7 @@ if __name__ == "__main__":
         print(HEAD_RESUME_ROOT)
         if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
-            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT))
+            HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT, weights_only=True))
         else:
             print(
                 "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
