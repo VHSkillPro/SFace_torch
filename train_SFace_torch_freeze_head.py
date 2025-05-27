@@ -311,7 +311,10 @@ if __name__ == "__main__":
             labels = labels.to(DEVICE).long()
             features = BACKBONE(inputs)
 
-            outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
+            with torch.no_grad():
+                outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(
+                    features, labels
+                )
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
             intra_losses.update(intra_loss.data.item(), inputs.size(0))
