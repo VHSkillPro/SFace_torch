@@ -211,12 +211,6 @@ if __name__ == "__main__":
     highest_acc = [0.0 for t in TARGET]
 
     # ======= model & loss & optimizer =======#
-    # BACKBONE_DICT = {
-    #     "IR_50": IR_50(INPUT_SIZE),
-    #     "IR_101": IR_101(INPUT_SIZE),
-    #     "MobileFaceNet": MobileFaceNet(EMBEDDING_SIZE),
-    # }
-    # BACKBONE = BACKBONE_DICT[BACKBONE_NAME]
     BACKBONE_NAME = "MobileFaceNet"
     onnx_model_path = "weights/face_recognition_sface_2021dec.onnx"
     BACKBONE = convert(onnx_model_path)
@@ -237,21 +231,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print(HEAD)
 
-    if BACKBONE_NAME.find("IR") >= 0:
-        backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(
-            BACKBONE
-        )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_irse_bn_paras(HEAD)
-    elif BACKBONE_NAME.find("MobileFace") >= 0:
-        # backbone_paras_only_bn, backbone_paras_wo_bn = separate_mobilefacenet_bn_paras(
-        #     BACKBONE
-        # )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_mobilefacenet_bn_paras(HEAD)
-    else:
-        backbone_paras_only_bn, backbone_paras_wo_bn = separate_resnet_bn_paras(
-            BACKBONE
-        )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-        _, head_paras_wo_bn = separate_resnet_bn_paras(HEAD)
+    _, head_paras_wo_bn = separate_mobilefacenet_bn_paras(HEAD)
     OPTIMIZER = optim.SGD(
         [
             {
@@ -267,23 +247,7 @@ if __name__ == "__main__":
     print("Optimizer Generated")
     print("=" * 60)
 
-    # BACKBONE.apply(weight_init)
     HEAD.apply(weight_init)
-
-    # optionally resume from a checkpoint
-    # if BACKBONE_RESUME_ROOT:
-    #     print("=" * 60)
-    #     print(BACKBONE_RESUME_ROOT)
-    #     if os.path.isfile(BACKBONE_RESUME_ROOT):
-    #         print("Loading Backbone Checkpoint '{}'".format(BACKBONE_RESUME_ROOT))
-    #         BACKBONE.load_state_dict(torch.load(BACKBONE_RESUME_ROOT))
-    #     else:
-    #         print(
-    #             "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
-    #                 BACKBONE_RESUME_ROOT
-    #             )
-    #         )
-    #     print("=" * 60)
 
     if MULTI_GPU:
         # multi-GPU setting
@@ -304,7 +268,7 @@ if __name__ == "__main__":
     Wj_mean = AverageMeter()
     top1 = AverageMeter()
 
-    # BACKBONE.train()  # set to training mode
+    BACKBONE.eval()
     HEAD.train()
     for epoch in range(NUM_EPOCH):
 
@@ -316,7 +280,9 @@ if __name__ == "__main__":
         for inputs, labels in iter(trainloader):
             inputs = inputs.to(DEVICE)
             labels = labels.to(DEVICE).long()
-            features = BACKBONE(inputs)
+
+            with torch.no_grad():
+                features = BACKBONE(inputs)
 
             outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
@@ -364,7 +330,7 @@ if __name__ == "__main__":
                         top1=top1,
                     )
                 )
-                # print("=" * 60)
+
                 intra_losses = AverageMeter()
                 inter_losses = AverageMeter()
                 Wyi_mean = AverageMeter()
@@ -415,15 +381,6 @@ if __name__ == "__main__":
                 # save checkpoints per epoch
                 if need_save(acc, highest_acc):
                     if MULTI_GPU:
-                        # torch.save(
-                        #     BACKBONE.module.state_dict(),
-                        #     os.path.join(
-                        #         WORK_PATH,
-                        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
-                        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-                        #         ),
-                        #     ),
-                        # )
                         torch.save(
                             HEAD.state_dict(),
                             os.path.join(
@@ -434,15 +391,6 @@ if __name__ == "__main__":
                             ),
                         )
                     else:
-                        # torch.save(
-                        #     BACKBONE.state_dict(),
-                        #     os.path.join(
-                        #         WORK_PATH,
-                        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
-                        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-                        #         ),
-                        #     ),
-                        # )
                         torch.save(
                             HEAD.state_dict(),
                             os.path.join(
@@ -452,21 +400,12 @@ if __name__ == "__main__":
                                 ),
                             ),
                         )
-                # BACKBONE.train()  # set to training mode
+                BACKBONE.eval()
 
             batch += 1  # batch index
 
     # save the last checkpoint
     if MULTI_GPU:
-        # torch.save(
-        #     BACKBONE.module.state_dict(),
-        #     os.path.join(
-        #         WORK_PATH,
-        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format(
-        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-        #         ),
-        #     ),
-        # )
         torch.save(
             HEAD.state_dict(),
             os.path.join(
@@ -477,15 +416,6 @@ if __name__ == "__main__":
             ),
         )
     else:
-        # torch.save(
-        #     BACKBONE.state_dict(),
-        #     os.path.join(
-        #         WORK_PATH,
-        #         "Backbone_{}_Epoch_{}_Batch_{}_Time_{}_checkpoint.pth".format (
-        #             BACKBONE_NAME, epoch + 1, batch + 1, get_time()
-        #         ),
-        #     ),
-        # )
         torch.save(
             HEAD.state_dict(),
             os.path.join(
