@@ -248,13 +248,16 @@ if __name__ == "__main__":
         backbone_paras_only_bn, backbone_paras_wo_bn = separate_resnet_bn_paras(
             BACKBONE
         )  # separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
+
+    projection_layer = nn.Linear(128, 512)
+
     OPTIMIZER = optim.SGD(
         [
             {
                 "params": backbone_paras_wo_bn,
                 "weight_decay": WEIGHT_DECAY,
             },
-            {"params": backbone_paras_only_bn},
+            {"params": backbone_paras_only_bn + list(projection_layer.parameters())},
         ],
         lr=LR,
         momentum=MOMENTUM,
@@ -315,7 +318,6 @@ if __name__ == "__main__":
             "Teacher backbone model not found at {}".format(teacher_backbone_path)
         )
     teacher_backbone = convert(teacher_backbone_path)
-    projection_layer = nn.Linear(128, 512)
 
     if MULTI_GPU:
         # multi-GPU setting
