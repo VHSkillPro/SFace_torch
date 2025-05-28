@@ -320,7 +320,7 @@ if __name__ == "__main__":
     teacher_backbone = convert(teacher_backbone_path)
     ae_model = AutoEncoderEncode()
     ae_model.load_state_dict(
-        torch.load("weights/model_ae_epoch_300.pth", weights_only=True)
+        torch.load("weights/model_ae_epoch_100.pth", weights_only=True)
     )
     if MULTI_GPU:
         # multi-GPU setting
