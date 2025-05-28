@@ -276,6 +276,9 @@ if __name__ == "__main__":
         if os.path.isfile(HEAD_RESUME_ROOT):
             print("Loading Head Checkpoint '{}'".format(HEAD_RESUME_ROOT))
             HEAD.load_state_dict(torch.load(HEAD_RESUME_ROOT, weights_only=True))
+            # Freeze the head parameters
+            for param in HEAD.parameters():
+                param.requires_grad = False
         else:
             print(
                 "No Checkpoint Found at '{}'. Please Have a Check or Continue to Train from Scratch".format(
@@ -332,6 +335,12 @@ if __name__ == "__main__":
     teacher_backbone.eval()
     ae_model.eval()
 
+    # Freezed the teacher backbone parameters
+    for param in teacher_backbone.parameters():
+        param.requires_grad = False
+    for param in ae_model.parameters():
+        param.requires_grad = False
+
     HIDDEN_REP_LOSS_WEIGHT = args.hidden_rep_loss_weight
     SFACE_LOSS_WEIGHT = 1 - HIDDEN_REP_LOSS_WEIGHT
 
@@ -355,10 +364,7 @@ if __name__ == "__main__":
                 features, teacher_features, torch.ones(features.size(0)).to(DEVICE)
             )
             hidden_rep_loss = hidden_rep_loss.mean()
-            with torch.no_grad():
-                outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(
-                    features, labels
-                )
+            outputs, loss, intra_loss, inter_loss, WyiX, WjX = HEAD(features, labels)
 
             prec1 = train_accuracy(outputs.data, labels, topk=(1,))
             intra_losses.update(intra_loss.data.item(), inputs.size(0))
